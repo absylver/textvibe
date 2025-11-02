@@ -698,4 +698,596 @@
         }
 
         function getHistory() {
+                       border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: #333;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .style-btn:hover, .case-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .style-btn:disabled, .case-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .color-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .color-preview {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            border: 3px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .color-preview:hover {
+            border-color: #667eea;
+            transform: scale(1.1);
+        }
+
+        .color-picker-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .color-picker-btn:hover {
+            background: #5568d3;
+        }
+
+        .color-picker-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .color-swatch {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.1);
+            border-color: #667eea;
+        }
+
+        .color-swatch.selected {
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px white, 0 0 0 4px #667eea;
+        }
+
+        .custom-color-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .custom-color-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .custom-color-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input[type="color"] {
+            width: 60px;
+            height: 50px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .hex-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: monospace;
+        }
+
+        .modal-close {
+            background: #e0e0e0;
+            color: #333;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .modal-close:hover {
+            background: #d0d0d0;
+        }
+
+        .editor-wrapper {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .editor-box {
+            width: 100%;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            min-height: 200px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+            outline: none;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            line-height: 1.6;
+            overflow-wrap: break-word;
+        }
+
+        .editor-box:focus {
+            border-color: #667eea;
+        }
+
+        .editor-box:empty:before {
+            content: attr(data-placeholder);
+            color: #999;
+        }
+
+        .editor-box br {
+            display: block;
+            margin: 0.5em 0;
+        }
+        
+        .editor-box div {
+            margin: 0;
+        }
+
+        .char-count {
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+            font-size: 11px;
+            color: #999;
+            background: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            pointer-events: none;
+        }
+
+        .undo-redo-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            align-items: center;
+        }
+
+        .undo-redo-btn {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            color: #555;
+        }
+
+        .undo-redo-btn:hover:not(:disabled) {
+            border-color: #667eea;
+            color: #667eea;
+            background: #f0f3ff;
+        }
+
+        .undo-redo-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: #fafafa;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 140px;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .copy-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .copy-btn.copied {
+            background: #10b981;
+        }
+
+        .reset-btn {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .reset-btn:hover {
+            background: #d0d0d0;
+        }
+
+        .history-btn {
+            background: #ff9800;
+            color: white;
+        }
+
+        .history-btn:hover {
+            background: #f57c00;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+        }
+
+        .history-item:hover {
+            border-color: #667eea;
+            background: #f0f3ff;
+        }
+
+        .history-text {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 10px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            max-height: 80px;
+            overflow-y: auto;
+            line-height: 1.4;
+        }
+
+        .history-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #999;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .history-action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .history-action-btn:hover {
+            background: #5568d3;
+        }
+
+        .history-action-btn.delete {
+            background: #ef4444;
+        }
+
+        .history-action-btn.delete:hover {
+            background: #dc2626;
+        }
+
+        .empty-history {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .clear-all-history {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .clear-all-history:hover {
+            background: #dc2626;
+        }
+
+        .footer {
+            margin: 1rem 0 0 0;
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .main-card {
+                padding: 15px;
+            }
+
+            .style-btn, .case-btn {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+
+            .modal-content {
+                padding: 20px;
+            }
+
+            .btn {
+                min-width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✨ TextVibe</h1>
+            <p class="subtitle">Transform your text into eye-catching styles for social media</p>
+        </header>
+
+        <div class="main-card">
+            <div class="info-banner">
+                💡 <strong>How to use:</strong> Type or paste your text below, then highlight any portion and click a style to transform it!
+            </div>
+
+            <div class="toolbar-section">
+                <div class="section-header">
+                    <span class="toolbar-label">📝 Font Style</span>
+                    <span class="selection-info" id="styleInfo">Select text to style</span>
+                </div>
+                <div class="scroll-container">
+                    <div class="button-row">
+                        <button class="style-btn" data-style="bold" disabled>Bold</button>
+                        <button class="style-btn" data-style="italic" disabled>Italic</button>
+                        <button class="style-btn" data-style="bolditalic" disabled>Bold+Italic</button>
+                        <button class="style-btn" data-style="cursive" disabled>Cursive</button>
+                        <button class="style-btn" data-style="mono" disabled>Monospace</button>
+                        <button class="style-btn" data-style="strike" disabled>Strike</button>
+                        <button class="style-btn" data-style="underline" disabled>Underline</button>
+                        <button class="style-btn" data-style="wide" disabled>Wide</button>
+                        <button class="style-btn" data-style="upside" disabled>Upside Down</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="toolbar-section">
+                <div class="section-header">
+                    <span class="toolbar-label">🔤 Text Case</span>
+                </div>
+                <div class="scroll-container">
+                    <div class="button-row">
+                        <button class="case-btn" data-case="upper" disabled>UPPERCASE</button>
+                        <button class="case-btn" data-case="lower" disabled>lowercase</button>
+                        <button class="case-btn" data-case="title" disabled>Title Case</button>
+                        <button class="case-btn" data-case="sentence" disabled>Sentence case</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="toolbar-section">
+                <div class="section-header">
+                    <span class="toolbar-label">🎨 Text Color</span>
+                </div>
+                <div class="color-section">
+                    <div class="color-preview" id="colorPreview"></div>
+                    <button class="color-picker-btn" id="openColorPicker" disabled>Choose Color</button>
+                </div>
+            </div>
+
+            <div class="undo-redo-bar">
+                <button class="undo-redo-btn" id="undoBtn" title="Undo (Ctrl+Z)">↶ Undo</button>
+                <button class="undo-redo-btn" id="redoBtn" title="Redo (Ctrl+Y)">Redo ↷</button>
+            </div>
+
+            <div class="editor-wrapper">
+                <div class="editor-box" id="editor" contenteditable="true" data-placeholder="Type or paste your article here..."></div>
+                <div class="char-count"><span id="charCount">0</span> chars</div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn copy-btn" id="copyBtn">📋 Copy Text</button>
+                <button class="btn history-btn" id="historyBtn">📜 History</button>
+                <button class="btn reset-btn" id="resetBtn">🔄 Clear</button>
+            </div>
+
+            <footer class="footer">With ❤️ Abraham Sylvester Asukwo</footer>
+        </div>
+    </div>
+
+    <div class="modal" id="colorModal">
+        <div class="modal-content">
+            <div class="modal-header">🎨 Choose a Color</div>
+            <div class="color-grid" id="colorGrid"></div>
+            
+            <div class="custom-color-section">
+                <div class="custom-color-label">Custom Color</div>
+                <div class="custom-color-input">
+                    <input type="color" id="customColorPicker" value="#333333">
+                    <input type="text" class="hex-input" id="hexInput" placeholder="#000000" maxlength="7">
+                </div>
+            </div>
+            
+            <button class="modal-close" id="closeModal">Close</button>
+        </div>
+    </div>
+
+    <div class="modal" id="historyModal">
+        <div class="modal-content">
+            <div class="modal-header">📜 Copied Text History</div>
+            <div id="historyList"></div>
+            <button class="modal-close" id="closeHistoryModal">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let selectedColor = '#333333';
+        let savedSelection = null;
+        let historyStack = [];
+        let historyIndex = -1;
+        const maxHistory = 50;
+
+        // DOM elements
+        const editor = document.getElementById('editor');
+        const charCount = document.getElementById('charCount');
+        const copyBtn = document.getElementById('copyBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const historyBtn = document.getElementById('historyBtn');
+        const colorPreview = document.getElementById('colorPreview');
+        const colorModal = document.getElementById('colorModal');
+        const historyModal = document.getElementById('historyModal');
+        const openColorPicker = document.getElementById('openColorPicker');
+        const closeModal = document.getElementById('closeModal');
+        const closeHistoryModal = document.getElementById('closeHistoryModal');
+        const customColorPicker = document.getElementById('customColorPicker');
+        const hexInput = document.getElementById('hexInput');
+        const colorGrid = document.getElementById('colorGrid');
+        const styleInfo = document.getElementById('styleInfo');
+        const undoBtn = document.getElementById('undoBtn');
+        const redoBtn = document.getElementById('redoBtn');
+        const historyList = document.getElementById('historyList');
+
+        const presetColors = [
+            '#000000', '#333333', '#666666', '#999999', '#CCCCCC',
+            '#FF0000', '#FF6B6B', '#FF8C42', '#FFA500', '#FFD700',
+            '#00FF00', '#32CD32', '#00CED1', '#1E90FF', '#0000FF',
+            '#8B00FF', '#9B59B6', '#FF1493', '#FF69B4', '#C71585',
+            '#8B4513', '#A0522D', '#CD853F', '#DEB887', '#F5DEB3'
+        ];
+
+        // History management functions
+        function saveToHistory(text) {
+            if (!text || text.trim() === '') return;
+            
+            const history = getHistory();
+            const newItem = {
+                id: Date.now(),
+                text: text,
+                timestamp: new Date().toISOString()
+            };
+            
+            history.unshift(newItem);
+            
+            if (history.length > 20) {
+                history.pop();
+            }
+            
+            try {
+                localStorage.setItem('textvibe_history', JSON.stringify(history));
+            } catch (e) {
+                console.error('Failed to save history:', e);
+            }
+        }
+
+        function getHistory() {
            
