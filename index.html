@@ -45,6 +45,7 @@
             border-radius: 20px;
             padding: 20px;
             box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
         }
 
         .info-banner {
@@ -190,8 +191,10 @@
             background: white;
             border-radius: 20px;
             padding: 25px;
-            max-width: 400px;
+            max-width: 500px;
             width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
 
@@ -284,7 +287,7 @@
 
         .editor-wrapper {
             position: relative;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         .editor-box {
@@ -302,16 +305,6 @@
             line-height: 1.6;
             overflow-wrap: break-word;
         }
-        
-        .editor-box br {
-            display: block;
-            content: "";
-            margin: 0.5em 0;
-        }
-        
-        .editor-box div {
-            margin: 0;
-        }
 
         .editor-box:focus {
             border-color: #667eea;
@@ -320,6 +313,15 @@
         .editor-box:empty:before {
             content: attr(data-placeholder);
             color: #999;
+        }
+
+        .editor-box br {
+            display: block;
+            margin: 0.5em 0;
+        }
+        
+        .editor-box div {
+            margin: 0;
         }
 
         .char-count {
@@ -334,20 +336,48 @@
             pointer-events: none;
         }
 
-        .action-buttons {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 10px;
+        .undo-redo-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            align-items: center;
         }
 
-        @media (max-width: 768px) {
-            .action-buttons {
-                grid-template-columns: 1fr 1fr;
-            }
+        .undo-redo-btn {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            color: #555;
+        }
+
+        .undo-redo-btn:hover:not(:disabled) {
+            border-color: #667eea;
+            color: #667eea;
+            background: #f0f3ff;
+        }
+
+        .undo-redo-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: #fafafa;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .btn {
             flex: 1;
+            min-width: 140px;
             padding: 14px 20px;
             border: none;
             border-radius: 10px;
@@ -380,6 +410,108 @@
             background: #d0d0d0;
         }
 
+        .history-btn {
+            background: #ff9800;
+            color: white;
+        }
+
+        .history-btn:hover {
+            background: #f57c00;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+        }
+
+        .history-item:hover {
+            border-color: #667eea;
+            background: #f0f3ff;
+        }
+
+        .history-text {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 10px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            max-height: 80px;
+            overflow-y: auto;
+            line-height: 1.4;
+        }
+
+        .history-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #999;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .history-action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .history-action-btn:hover {
+            background: #5568d3;
+        }
+
+        .history-action-btn.delete {
+            background: #ef4444;
+        }
+
+        .history-action-btn.delete:hover {
+            background: #dc2626;
+        }
+
+        .empty-history {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .clear-all-history {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .clear-all-history:hover {
+            background: #dc2626;
+        }
+
+        .footer {
+            margin: 1rem 0 0 0;
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 1.8em;
@@ -396,6 +528,10 @@
 
             .modal-content {
                 padding: 20px;
+            }
+
+            .btn {
+                min-width: 100px;
             }
         }
     </style>
@@ -456,20 +592,23 @@
                 </div>
             </div>
 
-            <div class="editor-wrapper">
-                <div class="editor-box" id="editor" contenteditable="true" data-placeholder="Type or paste your article here..."></div>
-                <div class="char-count"><span id="charCount">0</span> chars</div>
-            </div>
-
             <div class="undo-redo-bar">
                 <button class="undo-redo-btn" id="undoBtn" title="Undo (Ctrl+Z)">↶ Undo</button>
                 <button class="undo-redo-btn" id="redoBtn" title="Redo (Ctrl+Y)">Redo ↷</button>
             </div>
 
-            <div class="action-buttons">
-                <button class="btn copy-btn" id="copyBtn">📋 Copy Styled Text</button>
-                <button class="btn reset-btn" id="resetBtn">🔄 Clear All</button>
+            <div class="editor-wrapper">
+                <div class="editor-box" id="editor" contenteditable="true" data-placeholder="Type or paste your article here..."></div>
+                <div class="char-count"><span id="charCount">0</span> chars</div>
             </div>
+
+            <div class="action-buttons">
+                <button class="btn copy-btn" id="copyBtn">📋 Copy Text</button>
+                <button class="btn history-btn" id="historyBtn">📜 History</button>
+                <button class="btn reset-btn" id="resetBtn">🔄 Clear</button>
+            </div>
+
+            <footer class="footer">With ❤️ Abraham Sylvester Asukwo</footer>
         </div>
     </div>
 
@@ -490,20 +629,41 @@
         </div>
     </div>
 
+    <div class="modal" id="historyModal">
+        <div class="modal-content">
+            <div class="modal-header">📜 Copied Text History</div>
+            <div id="historyList"></div>
+            <button class="modal-close" id="closeHistoryModal">Close</button>
+        </div>
+    </div>
+
     <script>
+        // Global variables
         let selectedColor = '#333333';
+        let savedSelection = null;
+        let historyStack = [];
+        let historyIndex = -1;
+        const maxHistory = 50;
+
+        // DOM elements
         const editor = document.getElementById('editor');
         const charCount = document.getElementById('charCount');
         const copyBtn = document.getElementById('copyBtn');
         const resetBtn = document.getElementById('resetBtn');
+        const historyBtn = document.getElementById('historyBtn');
         const colorPreview = document.getElementById('colorPreview');
         const colorModal = document.getElementById('colorModal');
+        const historyModal = document.getElementById('historyModal');
         const openColorPicker = document.getElementById('openColorPicker');
         const closeModal = document.getElementById('closeModal');
+        const closeHistoryModal = document.getElementById('closeHistoryModal');
         const customColorPicker = document.getElementById('customColorPicker');
         const hexInput = document.getElementById('hexInput');
         const colorGrid = document.getElementById('colorGrid');
         const styleInfo = document.getElementById('styleInfo');
+        const undoBtn = document.getElementById('undoBtn');
+        const redoBtn = document.getElementById('redoBtn');
+        const historyList = document.getElementById('historyList');
 
         const presetColors = [
             '#000000', '#333333', '#666666', '#999999', '#CCCCCC',
@@ -513,409 +673,29 @@
             '#8B4513', '#A0522D', '#CD853F', '#DEB887', '#F5DEB3'
         ];
 
-        let savedSelection = null;
-        let historyStack = [];
-        let historyIndex = -1;
-        const maxHistory = 50;
-
-        // Save initial state
-        function saveState() {
-            const currentState = editor.innerHTML;
+        // History management functions
+        function saveToHistory(text) {
+            if (!text || text.trim() === '') return;
             
-            // Remove any states after current index (for redo)
-            historyStack = historyStack.slice(0, historyIndex + 1);
-            
-            // Add new state
-            historyStack.push(currentState);
-            
-            // Limit history size
-            if (historyStack.length > maxHistory) {
-                historyStack.shift();
-            } else {
-                historyIndex++;
-            }
-            
-            updateUndoRedoButtons();
-        }
-
-        function undo() {
-            if (historyIndex > 0) {
-                historyIndex--;
-                editor.innerHTML = historyStack[historyIndex];
-                updateCharCount();
-                updateUndoRedoButtons();
-            }
-        }
-
-        function redo() {
-            if (historyIndex < historyStack.length - 1) {
-                historyIndex++;
-                editor.innerHTML = historyStack[historyIndex];
-                updateCharCount();
-                updateUndoRedoButtons();
-            }
-        }
-
-        function updateUndoRedoButtons() {
-            const undoBtn = document.getElementById('undoBtn');
-            const redoBtn = document.getElementById('redoBtn');
-            
-            undoBtn.disabled = historyIndex <= 0;
-            redoBtn.disabled = historyIndex >= historyStack.length - 1;
-        }
-
-        presetColors.forEach(color => {
-            const swatch = document.createElement('div');
-            swatch.className = 'color-swatch';
-            swatch.style.backgroundColor = color;
-            swatch.addEventListener('click', () => {
-                selectColorPreset(color);
-                applyColorToSelection();
-                colorModal.classList.remove('active');
-            });
-            colorGrid.appendChild(swatch);
-        });
-
-        function selectColorPreset(color) {
-            selectedColor = color;
-            colorPreview.style.backgroundColor = color;
-            customColorPicker.value = color;
-            hexInput.value = color.toUpperCase();
-            document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
-            document.querySelectorAll('.color-swatch').forEach(s => {
-                if (s.style.backgroundColor === rgbToHex(color)) {
-                    s.classList.add('selected');
-                }
-            });
-        }
-
-        function saveSelection() {
-            const selection = window.getSelection();
-            if (selection.rangeCount > 0) {
-                savedSelection = selection.getRangeAt(0);
-            }
-        }
-
-        function restoreSelection() {
-            const selection = window.getSelection();
-            if (savedSelection) {
-                selection.removeAllRanges();
-                selection.addRange(savedSelection);
-            }
-        }
-
-        function rgbToHex(color) {
-            if (color.startsWith('#')) return color.toLowerCase();
-            const rgb = color.match(/\d+/g);
-            if (!rgb) return color;
-            return '#' + ((1 << 24) + (+rgb[0] << 16) + (+rgb[1] << 8) + +rgb[2]).toString(16).slice(1);
-        }
-
-        openColorPicker.addEventListener('click', () => {
-            saveSelection();
-            colorModal.classList.add('active');
-        });
-
-        closeModal.addEventListener('click', () => {
-            colorModal.classList.remove('active');
-        });
-
-        colorModal.addEventListener('click', (e) => {
-            if (e.target === colorModal) {
-                colorModal.classList.remove('active');
-            }
-        });
-
-        customColorPicker.addEventListener('input', (e) => {
-            selectColorPreset(e.target.value);
-            restoreSelection();
-            applyColorToSelection();
-            colorModal.classList.remove('active');
-        });
-
-        hexInput.addEventListener('input', (e) => {
-            let value = e.target.value;
-            if (!value.startsWith('#')) value = '#' + value;
-            if (/^#[0-9A-F]{6}$/i.test(value)) {
-                selectColorPreset(value);
-                restoreSelection();
-                applyColorToSelection();
-                colorModal.classList.remove('active');
-            }
-        });
-
-        function convertToUnicode(text, style) {
-            const maps = {
-                bold: 0x1D400,
-                italic: 0x1D434,
-                bolditalic: 0x1D468,
-                mono: 0x1D670,
-                cursive: 0x1D49C
+            const history = getHistory();
+            const newItem = {
+                id: Date.now(),
+                text: text,
+                timestamp: new Date().toISOString()
             };
-
-            const offset = maps[style];
-            if (!offset) return text;
-
-            return text.split('').map(char => {
-                if (char >= 'A' && char <= 'Z') {
-                    return String.fromCodePoint(offset + (char.charCodeAt(0) - 65));
-                } else if (char >= 'a' && char <= 'z') {
-                    return String.fromCodePoint(offset + 26 + (char.charCodeAt(0) - 97));
-                }
-                return char;
-            }).join('');
-        }
-
-        function strikethrough(text) {
-            return text.split('').map(c => c + '\u0336').join('');
-        }
-
-        function underline(text) {
-            return text.split('').map(c => c + '\u0332').join('');
-        }
-
-        function wideText(text) {
-            return text.split('').map(c => {
-                const code = c.charCodeAt(0);
-                if (code >= 33 && code <= 126) {
-                    return String.fromCharCode(code + 0xFEE0);
-                }
-                return c;
-            }).join('');
-        }
-
-        function upsideDown(text) {
-            const map = {
-                'a': 'ɐ', 'b': 'q', 'c': 'ɔ', 'd': 'p', 'e': 'ǝ', 'f': 'ɟ', 'g': 'ƃ', 'h': 'ɥ',
-                'i': 'ᴉ', 'j': 'ɾ', 'k': 'ʞ', 'l': 'l', 'm': 'ɯ', 'n': 'u', 'o': 'o', 'p': 'd',
-                'q': 'b', 'r': 'ɹ', 's': 's', 't': 'ʇ', 'u': 'n', 'v': 'ʌ', 'w': 'ʍ', 'x': 'x',
-                'y': 'ʎ', 'z': 'z', 'A': '∀', 'B': 'q', 'C': 'Ɔ', 'D': 'p', 'E': 'Ǝ', 'F': 'Ⅎ',
-                'G': 'פ', 'H': 'H', 'I': 'I', 'J': 'ſ', 'K': 'ʞ', 'L': '˥', 'M': 'W', 'N': 'N',
-                'O': 'O', 'P': 'Ԁ', 'Q': 'Ό', 'R': 'ɹ', 'S': 'S', 'T': '┴', 'U': '∩', 'V': 'Λ',
-                'W': 'M', 'X': 'X', 'Y': '⅄', 'Z': 'Z', '!': '¡', '?': '¿'
-            };
-            return text.split('').reverse().map(c => map[c] || c).join('');
-        }
-
-        function applyCase(text, caseType) {
-            switch(caseType) {
-                case 'upper':
-                    return text.toUpperCase();
-                case 'lower':
-                    return text.toLowerCase();
-                case 'title':
-                    return text.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
-                case 'sentence':
-                    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
-                default:
-                    return text;
+            
+            history.unshift(newItem);
+            
+            if (history.length > 20) {
+                history.pop();
+            }
+            
+            try {
+                localStorage.setItem('textvibe_history', JSON.stringify(history));
+            } catch (e) {
+                console.error('Failed to save history:', e);
             }
         }
 
-        function applyStyle(text, style) {
-            switch(style) {
-                case 'bold':
-                case 'italic':
-                case 'bolditalic':
-                case 'mono':
-                case 'cursive':
-                    return convertToUnicode(text, style);
-                case 'strike':
-                    return strikethrough(text);
-                case 'underline':
-                    return underline(text);
-                case 'wide':
-                    return wideText(text);
-                case 'upside':
-                    return upsideDown(text);
-                default:
-                    return text;
-            }
-        }
-
-        function applyStyleToSelection(styleType) {
-            saveState();
-            const selection = window.getSelection();
-            if (!selection.rangeCount) return;
-
-            const range = selection.getRangeAt(0);
-            const selectedText = range.toString();
-            
-            if (!selectedText) return;
-
-            const styledText = applyStyle(selectedText, styleType);
-            
-            range.deleteContents();
-            const span = document.createElement('span');
-            span.textContent = styledText;
-            range.insertNode(span);
-            
-            selection.removeAllRanges();
-            updateCharCount();
-        }
-
-        function applyCaseToSelection(caseType) {
-            saveState();
-            const selection = window.getSelection();
-            if (!selection.rangeCount) return;
-
-            const range = selection.getRangeAt(0);
-            const selectedText = range.toString();
-            
-            if (!selectedText) return;
-
-            const casedText = applyCase(selectedText, caseType);
-            
-            range.deleteContents();
-            const span = document.createElement('span');
-            span.textContent = casedText;
-            range.insertNode(span);
-            
-            selection.removeAllRanges();
-            updateCharCount();
-        }
-
-        function applyColorToSelection() {
-            saveState();
-            restoreSelection();
-            const selection = window.getSelection();
-            if (!selection.rangeCount) return;
-
-            const range = selection.getRangeAt(0);
-            const selectedText = range.toString();
-            
-            if (!selectedText) return;
-
-            range.deleteContents();
-            const span = document.createElement('span');
-            span.textContent = selectedText;
-            span.style.color = selectedColor;
-            range.insertNode(span);
-            
-            selection.removeAllRanges();
-            updateCharCount();
-        }
-
-        function updateCharCount() {
-            charCount.textContent = editor.textContent.length;
-        }
-
-        function updateButtonStates() {
-            const selection = window.getSelection();
-            const hasSelection = selection.toString().length > 0;
-            
-            document.querySelectorAll('.style-btn, .case-btn').forEach(btn => {
-                btn.disabled = !hasSelection;
-            });
-            
-            openColorPicker.disabled = !hasSelection;
-            
-            if (hasSelection) {
-                styleInfo.textContent = `${selection.toString().length} chars selected`;
-            } else {
-                styleInfo.textContent = 'Select text to style';
-            }
-        }
-
-        document.querySelectorAll('.style-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                applyStyleToSelection(btn.dataset.style);
-            });
-        });
-
-        document.querySelectorAll('.case-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                applyCaseToSelection(btn.dataset.case);
-            });
-        });
-
-        editor.addEventListener('input', () => {
-            updateCharCount();
-            // Debounce state saving for typing
-            clearTimeout(window.typingTimer);
-            window.typingTimer = setTimeout(saveState, 500);
-        });
-        
-        document.addEventListener('selectionchange', updateButtonStates);
-
-        const undoBtn = document.getElementById('undoBtn');
-        const redoBtn = document.getElementById('redoBtn');
-        
-        undoBtn.addEventListener('click', undo);
-        redoBtn.addEventListener('click', redo);
-        
-        // Keyboard shortcuts
-        editor.addEventListener('keydown', (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-                e.preventDefault();
-                undo();
-            } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
-                e.preventDefault();
-                redo();
-            }
-        });
-
-        copyBtn.addEventListener('click', () => {
-            // Clone the editor content
-            const clone = editor.cloneNode(true);
-            
-            // Convert <div> and <br> to line breaks
-            let text = '';
-            
-            function extractText(node) {
-                if (node.nodeType === Node.TEXT_NODE) {
-                    text += node.textContent;
-                } else if (node.nodeType === Node.ELEMENT_NODE) {
-                    if (node.nodeName === 'BR') {
-                        text += '\n';
-                    } else if (node.nodeName === 'DIV') {
-                        if (text && !text.endsWith('\n')) {
-                            text += '\n';
-                        }
-                        for (let child of node.childNodes) {
-                            extractText(child);
-                        }
-                        if (!text.endsWith('\n')) {
-                            text += '\n';
-                        }
-                    } else {
-                        for (let child of node.childNodes) {
-                            extractText(child);
-                        }
-                    }
-                }
-            }
-            
-            extractText(clone);
-            
-            // Clean up multiple consecutive line breaks
-            text = text.replace(/\n{3,}/g, '\n\n').trim();
-            
-            if (text) {
-                navigator.clipboard.writeText(text).then(() => {
-                    copyBtn.textContent = '✓ Copied!';
-                    copyBtn.classList.add('copied');
-                    setTimeout(() => {
-                        copyBtn.textContent = '📋 Copy Styled Text';
-                        copyBtn.classList.remove('copied');
-                    }, 2000);
-                });
-            }
-        });
-
-        resetBtn.addEventListener('click', () => {
-            editor.textContent = '';
-            historyStack = [];
-            historyIndex = -1;
-            saveState();
-            updateCharCount();
-            updateButtonStates();
-        });
-
-        // Initialize history with empty state
-        saveState();
-        selectColorPreset('#333333');
-        updateButtonStates();
-    </script>
-</body>
-</html>
+        function getHistory() {
+           
