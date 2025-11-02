@@ -382,7 +382,7 @@
 
         @media (max-width: 768px) {
             h1 {
-                font-size: 2em;
+                font-size: 1.8em;
             }
             
             .main-card {
@@ -403,7 +403,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>TextVibe</h1>
+            <h1>✨ TextVibe</h1>
             <p class="subtitle">Transform your text into eye-catching styles for social media</p>
         </header>
 
@@ -658,4 +658,264 @@
 
             return text.split('').map(char => {
                 if (char >= 'A' && char <= 'Z') {
-                    return String.fromCodePoint(offset + (char.char
+                    return String.fromCodePoint(offset + (char.charCodeAt(0) - 65));
+                } else if (char >= 'a' && char <= 'z') {
+                    return String.fromCodePoint(offset + 26 + (char.charCodeAt(0) - 97));
+                }
+                return char;
+            }).join('');
+        }
+
+        function strikethrough(text) {
+            return text.split('').map(c => c + '\u0336').join('');
+        }
+
+        function underline(text) {
+            return text.split('').map(c => c + '\u0332').join('');
+        }
+
+        function wideText(text) {
+            return text.split('').map(c => {
+                const code = c.charCodeAt(0);
+                if (code >= 33 && code <= 126) {
+                    return String.fromCharCode(code + 0xFEE0);
+                }
+                return c;
+            }).join('');
+        }
+
+        function upsideDown(text) {
+            const map = {
+                'a': 'ɐ', 'b': 'q', 'c': 'ɔ', 'd': 'p', 'e': 'ǝ', 'f': 'ɟ', 'g': 'ƃ', 'h': 'ɥ',
+                'i': 'ᴉ', 'j': 'ɾ', 'k': 'ʞ', 'l': 'l', 'm': 'ɯ', 'n': 'u', 'o': 'o', 'p': 'd',
+                'q': 'b', 'r': 'ɹ', 's': 's', 't': 'ʇ', 'u': 'n', 'v': 'ʌ', 'w': 'ʍ', 'x': 'x',
+                'y': 'ʎ', 'z': 'z', 'A': '∀', 'B': 'q', 'C': 'Ɔ', 'D': 'p', 'E': 'Ǝ', 'F': 'Ⅎ',
+                'G': 'פ', 'H': 'H', 'I': 'I', 'J': 'ſ', 'K': 'ʞ', 'L': '˥', 'M': 'W', 'N': 'N',
+                'O': 'O', 'P': 'Ԁ', 'Q': 'Ό', 'R': 'ɹ', 'S': 'S', 'T': '┴', 'U': '∩', 'V': 'Λ',
+                'W': 'M', 'X': 'X', 'Y': '⅄', 'Z': 'Z', '!': '¡', '?': '¿'
+            };
+            return text.split('').reverse().map(c => map[c] || c).join('');
+        }
+
+        function applyCase(text, caseType) {
+            switch(caseType) {
+                case 'upper':
+                    return text.toUpperCase();
+                case 'lower':
+                    return text.toLowerCase();
+                case 'title':
+                    return text.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+                case 'sentence':
+                    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+                default:
+                    return text;
+            }
+        }
+
+        function applyStyle(text, style) {
+            switch(style) {
+                case 'bold':
+                case 'italic':
+                case 'bolditalic':
+                case 'mono':
+                case 'cursive':
+                    return convertToUnicode(text, style);
+                case 'strike':
+                    return strikethrough(text);
+                case 'underline':
+                    return underline(text);
+                case 'wide':
+                    return wideText(text);
+                case 'upside':
+                    return upsideDown(text);
+                default:
+                    return text;
+            }
+        }
+
+        function applyStyleToSelection(styleType) {
+            saveState();
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+
+            const range = selection.getRangeAt(0);
+            const selectedText = range.toString();
+            
+            if (!selectedText) return;
+
+            const styledText = applyStyle(selectedText, styleType);
+            
+            range.deleteContents();
+            const span = document.createElement('span');
+            span.textContent = styledText;
+            range.insertNode(span);
+            
+            selection.removeAllRanges();
+            updateCharCount();
+        }
+
+        function applyCaseToSelection(caseType) {
+            saveState();
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+
+            const range = selection.getRangeAt(0);
+            const selectedText = range.toString();
+            
+            if (!selectedText) return;
+
+            const casedText = applyCase(selectedText, caseType);
+            
+            range.deleteContents();
+            const span = document.createElement('span');
+            span.textContent = casedText;
+            range.insertNode(span);
+            
+            selection.removeAllRanges();
+            updateCharCount();
+        }
+
+        function applyColorToSelection() {
+            saveState();
+            restoreSelection();
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+
+            const range = selection.getRangeAt(0);
+            const selectedText = range.toString();
+            
+            if (!selectedText) return;
+
+            range.deleteContents();
+            const span = document.createElement('span');
+            span.textContent = selectedText;
+            span.style.color = selectedColor;
+            range.insertNode(span);
+            
+            selection.removeAllRanges();
+            updateCharCount();
+        }
+
+        function updateCharCount() {
+            charCount.textContent = editor.textContent.length;
+        }
+
+        function updateButtonStates() {
+            const selection = window.getSelection();
+            const hasSelection = selection.toString().length > 0;
+            
+            document.querySelectorAll('.style-btn, .case-btn').forEach(btn => {
+                btn.disabled = !hasSelection;
+            });
+            
+            openColorPicker.disabled = !hasSelection;
+            
+            if (hasSelection) {
+                styleInfo.textContent = `${selection.toString().length} chars selected`;
+            } else {
+                styleInfo.textContent = 'Select text to style';
+            }
+        }
+
+        document.querySelectorAll('.style-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                applyStyleToSelection(btn.dataset.style);
+            });
+        });
+
+        document.querySelectorAll('.case-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                applyCaseToSelection(btn.dataset.case);
+            });
+        });
+
+        editor.addEventListener('input', () => {
+            updateCharCount();
+            // Debounce state saving for typing
+            clearTimeout(window.typingTimer);
+            window.typingTimer = setTimeout(saveState, 500);
+        });
+        
+        document.addEventListener('selectionchange', updateButtonStates);
+
+        const undoBtn = document.getElementById('undoBtn');
+        const redoBtn = document.getElementById('redoBtn');
+        
+        undoBtn.addEventListener('click', undo);
+        redoBtn.addEventListener('click', redo);
+        
+        // Keyboard shortcuts
+        editor.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+                e.preventDefault();
+                undo();
+            } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+                e.preventDefault();
+                redo();
+            }
+        });
+
+        copyBtn.addEventListener('click', () => {
+            // Clone the editor content
+            const clone = editor.cloneNode(true);
+            
+            // Convert <div> and <br> to line breaks
+            let text = '';
+            
+            function extractText(node) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    text += node.textContent;
+                } else if (node.nodeType === Node.ELEMENT_NODE) {
+                    if (node.nodeName === 'BR') {
+                        text += '\n';
+                    } else if (node.nodeName === 'DIV') {
+                        if (text && !text.endsWith('\n')) {
+                            text += '\n';
+                        }
+                        for (let child of node.childNodes) {
+                            extractText(child);
+                        }
+                        if (!text.endsWith('\n')) {
+                            text += '\n';
+                        }
+                    } else {
+                        for (let child of node.childNodes) {
+                            extractText(child);
+                        }
+                    }
+                }
+            }
+            
+            extractText(clone);
+            
+            // Clean up multiple consecutive line breaks
+            text = text.replace(/\n{3,}/g, '\n\n').trim();
+            
+            if (text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    copyBtn.textContent = '✓ Copied!';
+                    copyBtn.classList.add('copied');
+                    setTimeout(() => {
+                        copyBtn.textContent = '📋 Copy Styled Text';
+                        copyBtn.classList.remove('copied');
+                    }, 2000);
+                });
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            editor.textContent = '';
+            historyStack = [];
+            historyIndex = -1;
+            saveState();
+            updateCharCount();
+            updateButtonStates();
+        });
+
+        // Initialize history with empty state
+        saveState();
+        selectColorPreset('#333333');
+        updateButtonStates();
+    </script>
+</body>
+</html>
