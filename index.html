@@ -1288,6 +1288,177 @@
                 console.error('Failed to save history:', e);
             }
         }
-
         function getHistory() {
-           
+            try {
+                const stored = localStorage.getItem('textvibe_history');
+                return stored ? JSON.parse(stored) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function deleteHistoryItem(id) {
+            const history = getHistory().filter(item => item.id !== id);
+            localStorage.setItem('textvibe_history', JSON.stringify(history));
+            displayHistory();
+        }
+
+        function clearAllHistory() {
+            if (confirm('Are you sure you want to clear all history?')) {
+                localStorage.removeItem('textvibe_history');
+                displayHistory();
+            }
+        }
+
+        function loadHistoryItemById(id) {
+            const history = getHistory();
+            const item = history.find(h => h.id === id);
+            if (item) {
+                editor.innerHTML = '';
+                editor.appendChild(document.createTextNode(item.text));
+                updateCharCount();
+                saveState();
+                historyModal.classList.remove('active');
+            }
+        }
+
+        function copyHistoryItemById(id) {
+            const history = getHistory();
+            const item = history.find(h => h.id === id);
+            if (item) {
+                navigator.clipboard.writeText(item.text).then(() => {
+                    alert('Text copied!');
+                });
+            }
+        }
+
+        function displayHistory() {
+            const history = getHistory();
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<div class="empty-history">📭 No saved texts yet.<br>Copy some styled text to see it here!</div>';
+                return;
+            }
+            
+            let html = '';
+            history.forEach(item => {
+                const date = new Date(item.timestamp);
+                const timeAgo = getTimeAgo(date);
+                const preview = item.text.length > 150 ? item.text.substring(0, 150) + '...' : item.text;
+                
+                html += `
+                    <div class="history-item">
+                        <div class="history-text">${escapeHtml(preview)}</div>
+                        <div class="history-meta">
+                            <span>${timeAgo}</span>
+                            <div class="history-actions">
+                                <button class="history-action-btn" onclick="loadHistoryItemById(${item.id})">Load</button>
+                                <button class="history-action-btn" onclick="copyHistoryItemById(${item.id})">Copy</button>
+                                <button class="history-action-btn delete" onclick="deleteHistoryItem(${item.id})">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '<button class="clear-all-history" onclick="clearAllHistory()">Clear All History</button>';
+            historyList.innerHTML = html;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            if (seconds < 60) return 'Just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return minutes + 'm ago';
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return hours + 'h ago';
+            const days = Math.floor(hours / 24);
+            return days + 'd ago';
+        }
+
+        window.deleteHistoryItem = deleteHistoryItem;
+        window.clearAllHistory = clearAllHistory;
+        window.loadHistoryItemById = loadHistoryItemById;
+        window.copyHistoryItemById = copyHistoryItemById;
+
+        historyBtn.addEventListener('click', () => {
+            displayHistory();
+            historyModal.classList.add('active');
+        });
+
+        closeHistoryModal.addEventListener('click', () => {
+            historyModal.classList.remove('active');
+        });
+
+        historyModal.addEventListener('click', (e) => {
+            if (e.target === historyModal) {
+                historyModal.classList.remove('active');
+            }
+        });
+
+        // Undo/Redo
+        function saveState() {
+            const currentState = editor.innerHTML;
+            historyStack = historyStack.slice(0, historyIndex + 1);
+            historyStack.push(currentState);
+            if (historyStack.length > maxHistory) {
+                historyStack.shift();
+            } else {
+                historyIndex++;
+            }
+            updateUndoRedoButtons();
+        }
+
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                editor.innerHTML = historyStack[historyIndex];
+                updateCharCount();
+                updateUndoRedoButtons();
+            }
+        }
+
+        function redo() {
+            if (historyIndex < historyStack.length - 1) {
+                historyIndex++;
+                editor.innerHTML = historyStack[historyIndex];
+                updateCharCount();
+                updateUndoRedoButtons();
+            }
+        }
+
+        function updateUndoRedoButtons() {
+            undoBtn.disabled = historyIndex <= 0;
+            redoBtn.disabled = historyIndex >= historyStack.length - 1;
+        }
+
+        // Text styling functions
+        function convertToUnicode(text, style) {
+            const maps = {
+                bold: 0x1D400,
+                italic: 0x1D434,
+                bolditalic: 0x1D468,
+                mono: 0x1D670,
+                cursive: 0x1D49C,
+                mathsans: 0x1D5A0,
+                scriptbolditalic: 0x1D4D0
+            };
+
+            const offset = maps[style];
+            if (!offset) return text;
+
+            return text.split('').map(char => {
+                if (char >= 'A' && char <= 'Z') {
+                    return String.fromCodePoint(offset + (char.charCodeAt(0) - 65));
+                } else if (char >= 'a' && char <= 'z') {
+                    return String.fromCodePoint(offset + 26 + (char.charCodeAt(0) - 97));
+                }
+                return char;
+            }).join('');
+                }
